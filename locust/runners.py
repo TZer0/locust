@@ -16,6 +16,8 @@ from stats import global_stats
 
 from rpc import rpc, Message
 
+import ast
+
 logger = logging.getLogger(__name__)
 
 # global locust runner singleton
@@ -37,6 +39,11 @@ class LocustRunner(object):
         self.hatching_greenlet = None
         self.exceptions = {}
         self.stats = global_stats
+
+        if options.data:
+            self.data = ast.literal_eval(options.data)
+        else:
+            self.data = {}
         
         # register listener that resets stats when hatching is complete
         def on_hatch_complete(user_count):
@@ -110,7 +117,7 @@ class LocustRunner(object):
                 occurence_count[locust.__name__] += 1
                 def start_locust(_):
                     try:
-                        locust().run()
+                        locust().run(self.data)
                     except GreenletExit:
                         pass
                 new_locust = self.locusts.spawn(start_locust, locust)
@@ -287,7 +294,8 @@ class MasterLocustRunner(DistributedLocustRunner):
                 "num_clients":slave_num_clients,
                 "num_requests": self.num_requests,
                 "host":self.host,
-                "stop_timeout":None
+                "stop_timeout":None,
+                "data": self.data
             }
 
             if remaining > 0:
@@ -389,6 +397,8 @@ class SlaveLocustRunner(DistributedLocustRunner):
                 self.num_requests = job["num_requests"]
                 self.host = job["host"]
                 self.hatching_greenlet = gevent.spawn(lambda: self.start_hatching(locust_count=job["num_clients"], hatch_rate=job["hatch_rate"]))
+                self.data = job.get("data", {})
+
             elif msg.type == "stop":
                 self.stop()
                 self.client.send(Message("client_stopped", None, self.client_id))

@@ -97,9 +97,9 @@ class Locust(object):
     def __init__(self):
         super(Locust, self).__init__()
     
-    def run(self):
+    def run(self, data):
         try:
-            self.task_set(self).run()
+            self.task_set(self).run(data)
         except StopLocust:
             pass
         except (RescheduleTask, RescheduleTaskImmediately) as e:
@@ -235,7 +235,7 @@ class TaskSet(object):
             raise LocustError("TaskSet should be called with Locust instance or TaskSet instance as first argument")
 
         self.parent = parent
-        
+
         # if this class doesn't have a min_wait or max_wait defined, copy it from Locust
         if not self.min_wait:
             self.min_wait = self.locust.min_wait
@@ -245,6 +245,7 @@ class TaskSet(object):
     def run(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
+        self.data = args[0]
         
         try:
             if hasattr(self, "on_start"):

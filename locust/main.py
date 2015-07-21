@@ -228,6 +228,24 @@ def parse_options():
         help="show program's version number and exit"
     )
 
+    parser.add_option(
+        '-d','--data',
+        action='store',
+        dest='data',
+        default=False,
+        type='string',
+        help='A dictionary of data injected into the locusts (overwritten when running as a slave)'
+    )
+
+    parser.add_option(
+        '--data-file',
+        action='store',
+        dest='data_file',
+        default=False,
+        type='string',
+        help='Location of a file containing a dictionary to be injected into the locusts (overwritten when running as a slave)'
+    )
+
     # Finalize
     # Return three-tuple of parser + the output from parse_args (opt obj, args)
     opts, args = parser.parse_args()
@@ -357,6 +375,13 @@ def main():
     if not locusts:
         logger.error("No Locust class found!")
         sys.exit(1)
+
+    if options.data and options.data_file:
+        logger.error("You may not pass --data and --data-file at the same time")
+        sys.exit(1)
+
+    if options.data_file:
+        options.data = file(options.data_file, "r").read()
 
     # make sure specified Locust exists
     if arguments:
