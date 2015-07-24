@@ -234,7 +234,7 @@ def parse_options():
         dest='data',
         default=False,
         type='string',
-        help='A dictionary of data injected into the locusts (overwritten when running as a slave)'
+        help='A dictionary of data injected into the locusts (overwritten when running as a slave). Example: -d "{\'MyInt\': 5, \'MyString\': \'Test\', \'MyList\': [1, None, \'ListEntry\']}"'
     )
 
     parser.add_option(
@@ -243,7 +243,7 @@ def parse_options():
         dest='data_file',
         default=False,
         type='string',
-        help='Location of a file containing a dictionary to be injected into the locusts (overwritten when running as a slave)'
+        help='Location of a file containing a dictionary to be injected into the locusts (overwritten when running as a slave). See --data.'
     )
 
     # Finalize
