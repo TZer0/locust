@@ -37,6 +37,7 @@ class LocustRunner(object):
         self.hatching_greenlet = None
         self.exceptions = {}
         self.stats = global_stats
+        self.bin_exceptions = options.bin_exceptions
         
         # register listener that resets stats when hatching is complete
         def on_hatch_complete(user_count):
@@ -181,7 +182,10 @@ class LocustRunner(object):
         events.locust_stop_hatching.fire()
 
     def log_exception(self, node_id, msg, formatted_tb):
-        key = hash(formatted_tb)
+        hash_target = formatted_tb
+        if not self.bin_exceptions:
+            hash_target += msg
+        key = hash(hash_target)
         row = self.exceptions.setdefault(key, {"count": 0, "msg": msg, "traceback": formatted_tb, "nodes": set()})
         row["count"] += 1
         row["nodes"].add(node_id)

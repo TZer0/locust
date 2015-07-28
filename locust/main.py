@@ -228,6 +228,18 @@ def parse_options():
         help="show program's version number and exit"
     )
 
+
+    # Prevent binning of exceptions unless their messages are exactly the same.
+    # This is useful when you implement an exception throwing system that gathers
+    # information prior to throwing it with the same stack each time.
+    parser.add_option(
+        '--unbin-exceptions',
+        action='store_false',
+        dest='bin_exceptions',
+        default=True,
+        help="Only bin exceptions if their messages are exactly the same."
+    )
+
     # Finalize
     # Return three-tuple of parser + the output from parse_args (opt obj, args)
     opts, args = parser.parse_args()
